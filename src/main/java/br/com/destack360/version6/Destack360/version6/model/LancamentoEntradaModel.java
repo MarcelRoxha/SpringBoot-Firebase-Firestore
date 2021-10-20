@@ -9,6 +9,7 @@ import lombok.Setter;
 public class LancamentoEntradaModel {
 
 
+    private String identificador;
     private String emailUserLancandoEntrada;
     private String nomeUserLancandoEntrada;
     private String nomeLancamentoEntrada;
