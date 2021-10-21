@@ -8,11 +8,12 @@ import lombok.Setter;
 
 public class LancamentoSaidaModel {
 
-
+    private String identificador;
     private String emailUserLancandoSaida;
     private String nomeUserLancandoSaida;
     private String nomeLancamentoSaida;
     private String dataLancamentoSaida;
+    private String valorLancamentoSaida;
     private String detalhesLancamentoSaida;
     private String createdLancamentoSaida;
     private String modifieldLancamentoSaida;

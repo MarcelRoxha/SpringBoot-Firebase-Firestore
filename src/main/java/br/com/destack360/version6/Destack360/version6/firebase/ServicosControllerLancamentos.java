@@ -129,7 +129,6 @@ public class ServicosControllerLancamentos {
 
 
 
-
     @GetMapping("/teste")
     public ResponseEntity<String> testGetEndpoint(){
         return ResponseEntity.ok("<h1>Teste get Endpoint is Working</h1>");

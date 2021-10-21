@@ -14,6 +14,7 @@ public class LancamentoEntradaModel {
     private String nomeUserLancandoEntrada;
     private String nomeLancamentoEntrada;
     private String dataLancamentoEntrada;
+    private String valorLancamentoEntrada;
     private String detalhesLancamentoEntrada;
     private String createdLancamentoEntrada;
     private String modifieldLancamentoEntrada;
