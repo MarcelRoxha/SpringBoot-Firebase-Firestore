@@ -68,8 +68,8 @@ public class ServicosControllerLancamentos {
     //Salvar lancamento saida
 
     @PostMapping("/lancarSaida")
-    public String lancarSaida(@RequestBody LancamentoSaidaModel lancamentoSaidaModel) throws ExecutionException, InterruptedException {
-        return servicosService.lancarSaida(lancamentoSaidaModel);
+    public String lancarSaida(@RequestBody LancamentoEntradaModel lancamentoEntradaModel) throws ExecutionException, InterruptedException {
+        return servicosService.lancarSaida(lancamentoEntradaModel);
     }
 
     //Editar lancamento saida
