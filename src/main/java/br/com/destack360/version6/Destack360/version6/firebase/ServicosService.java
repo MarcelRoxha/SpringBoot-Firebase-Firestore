@@ -19,9 +19,10 @@ public class ServicosService {
     //Firebase
     private static final String NOME_COLLECTION_USUARIO_LANCA = "users";
     private static final String NOME_COLLECTION_ACUMULADOS = "ACUMULADOS";
+    private String NOME_COLLECTION_ACUMULADOS_ENTRADA_USUARIO = "ACUMULADOS_";
     private static final String NOME_COLLECTION_LANCAMENTO_ENTRADA_DIARIA_USUARIO = "ACUMULADOS_ENTRADA_DIARIA";
     private static final String NOME_COLLECTION_LANCAMENTO_SAIDA_DIARIA_USUARIO = "ACUMULADOS_ENTRADA_SAIDA";
-    public String mensagemReturn = "";
+
 
 
 
@@ -66,13 +67,15 @@ public class ServicosService {
 
     //Variaveis helper
     String novoId;
+    String mesReferencia;
+    String nomeCollectionMesReferencia;
+    String mensagemReturn = "";
 
 
-
-/*
-* Lancar entrada, usuario irá digitar data, valor lançamento, tipo de lancamento que seria o nome (Ex: Doação, Dizímo, etc..).
-* Talvez seja anonimo esse lancamento e irá precisar ser somado com os valores já acumulado desse usuario
-* */
+    /*
+     * Lancar entrada, usuario irá digitar data, valor lançamento, tipo de lancamento que seria o nome (Ex: Doação, Dizímo, etc..).
+     * Talvez seja anonimo esse lancamento e irá precisar ser somado com os valores já acumulado desse usuario
+     * */
     public String lancarEntrada(LancamentoEntradaModel lancamentoEntradaModel) throws ExecutionException, InterruptedException {
 
         //Recuperando as informações
@@ -82,19 +85,81 @@ public class ServicosService {
         this.emailUserLancandoEntrada = lancamentoEntradaModel.getEmailUserLancandoEntrada();
         this.valorLancamentoEntrada = lancamentoEntradaModel.getValorLancamentoEntrada();
 
+
+
+        //Configurando
         String [] dataRecebida = this.dataLancamentoEntrada.split("/");
         String dataFormatadaLancamentoEntrada = dataRecebida[2]+ "/" +dataRecebida[1]+ "/" +dataRecebida[0];
 
+        int valorMesReferenciaLancado = Integer.parseInt(dataRecebida[1]);
+
+        switch (valorMesReferenciaLancado){
+            case 1:
+                this.mesReferencia = "JANEIRO";
+                break;
+            case 2:
+                this.mesReferencia = "FEVEREIRO";
+                break;
+            case 3:
+                this.mesReferencia = "MARÇO";
+                break;
+            case 4:
+                this.mesReferencia = "ABRIL";
+                break;
+            case 5:
+                this.mesReferencia = "MAIO";
+                break;
+            case 6:
+                this.mesReferencia = "JUNHO";
+                break;
+            case 7:
+                this.mesReferencia = "JULHO";
+                break;
+            case 8:
+                this.mesReferencia = "AGOSTO";
+                break;
+            case 9:
+                this.mesReferencia = "SETEMBRO";
+                break;
+            case 10:
+                this.mesReferencia = "OUTUBRO";
+                break;
+            case 11:
+                this.mesReferencia = "NOVEMBRO";
+                break;
+            case 12:
+                this.mesReferencia = "DEZEMBRO";
+                break;
+
+                default:
+                break;
+
+        }
+
+
+        this.nomeCollectionMesReferencia = "ACUMULADO_MES_"+this.mesReferencia;
 
         String valorLancamentoEntradaRecebido = this.valorLancamentoEntrada;
         String valorLancamentoEntradaLimpo = valorLancamentoEntradaRecebido.replace(",", ".");
         double valorLancamentoEntradaConvertido = Double.parseDouble(valorLancamentoEntradaLimpo);
 
+
+
+
+
         if(this.emailUserLancandoEntrada != null){
 
+            String nomeUsuario = lancamentoEntradaModel.getNomeUserLancandoEntrada();
+            String nomeMaiusculo = nomeUsuario.toUpperCase();
+            String nomeCollectionAcumuladoUsuario = "ACUMULADO_"+nomeMaiusculo;
 
-            Firestore firestore = FirestoreClient.getFirestore();
-            DocumentReference documentReferenceusuario = firestore.collection(NOME_COLLECTION_ACUMULADOS).document(this.emailUserLancandoEntrada);
+
+            Firestore firestoreCollectionMesReferencia = FirestoreClient.getFirestore();
+            DocumentReference documentReferenceusuario = firestoreCollectionMesReferencia.collection(NOME_COLLECTION_ACUMULADOS)
+                    .document(this.emailUserLancandoEntrada)
+                   .collection(nomeCollectionAcumuladoUsuario)
+                    .document(this.nomeCollectionMesReferencia);
+
             ApiFuture<DocumentSnapshot> usuarioLancaEntrada = documentReferenceusuario.get();
             DocumentSnapshot documentSnapshotUsuario = usuarioLancaEntrada.get();
 
@@ -104,9 +169,18 @@ public class ServicosService {
                  * CASO O DOCUMENTOUSUARIO EXISTA, SIGNIFICA QUE O USUARIO JÁ EFETOU LANÇAMENTO ANTES, ENTÃO NO CASO SERÁ ATUALIZAÇÕES
                  */
 
+                Firestore firestoreAcumuldoMesReferencia = FirestoreClient.getFirestore();
+                DocumentReference documentReferenceusuarioMesReferencia = firestoreAcumuldoMesReferencia.collection(NOME_COLLECTION_ACUMULADOS)
+                        .document(this.emailUserLancandoEntrada)
+                        .collection(nomeCollectionAcumuladoUsuario)
+                        .document(this.nomeCollectionMesReferencia);
+                ApiFuture<DocumentSnapshot> usuarioLancaEntradaMesReferencia = documentReferenceusuarioMesReferencia.get();
+                DocumentSnapshot documentSnapshotUsuarioMesReferencia = usuarioLancaEntradaMesReferencia.get();
+
+
 
                 //RECUPERANDO DADOS DO USUARIO PARA AS ATUALIZAÇÕES REFERENTE AO LANÇAMENTO EFETUADO
-                UserModel ValoresUserModelLancaEntrada = documentSnapshotUsuario.toObject(UserModel.class);
+                UserModel ValoresUserModelLancaEntrada = documentSnapshotUsuarioMesReferencia.toObject(UserModel.class);
 
 
                 //VARIAVEIS LOCAIS RECEBENDO OS VALORES DO LANCAMENTO EFETUADO PELO USUARIO EM QUESTÃO
@@ -120,6 +194,7 @@ public class ServicosService {
 
                 //VALORES RECUPERADOS DO USUARIO PARA PREPARAÇÃO DAS DEVIDAS ATUALIZAÇÕES:
 
+                assert ValoresUserModelLancaEntrada != null;
                 double valorTotalEntradaMensal = ValoresUserModelLancaEntrada.getValorTotalEntradaMensal();
 
                 //PREPARANDO AS VARIAVEIS LOCAIS COM AS TEMPORARIAS PARA ATUALIZAR UM NOVO USERMODEL
@@ -132,18 +207,18 @@ public class ServicosService {
                 this.quantidadeTotalLancamentosEntradaMensal = ValoresUserModelLancaEntrada.getQuantidadeTotalLancamentosEntradaMensal() + 1;
                 this.quantidadeTotalLancamentosSaidaMensal = ValoresUserModelLancaEntrada.getQuantidadeTotalLancamentosSaidaMensal();
 
-               //NOVO USUARIO SENTO INSTANCIADO PARA RECEBER VALORES JÁ TRATADOS-----------------------------
-               UserModel usuarioAtualiza = new UserModel();
-               //ATRIBUINDO AS VARIAVEIS PARA OS ATRIBUTOS---------------------------------------------------
-               usuarioAtualiza.setUser_id(this.user_id);
-               usuarioAtualiza.setNomeUser(this.nomeUser);
-               usuarioAtualiza.setEmailUser(this.emailUser);
-               usuarioAtualiza.setValorTotalEntradaMensal(this.valorTotalEntradaMensal);
-               usuarioAtualiza.setValorTotalSaidaMensal(this.valorTotalSaidaMensal);
-               usuarioAtualiza.setQuantidadeTotalLancamentosEntradaMensal(this.quantidadeTotalLancamentosEntradaMensal);
-               usuarioAtualiza.setQuantidadeTotalLancamentosSaidaMensal(this.quantidadeTotalLancamentosSaidaMensal);
+                //NOVO USUARIO SENTO INSTANCIADO PARA RECEBER VALORES JÁ TRATADOS-----------------------------
+                UserModel usuarioAtualiza = new UserModel();
+                //ATRIBUINDO AS VARIAVEIS PARA OS ATRIBUTOS---------------------------------------------------
+                usuarioAtualiza.setUser_id(this.user_id);
+                usuarioAtualiza.setNomeUser(this.nomeUser);
+                usuarioAtualiza.setEmailUser(this.emailUser);
+                usuarioAtualiza.setValorTotalEntradaMensal(this.valorTotalEntradaMensal);
+                usuarioAtualiza.setValorTotalSaidaMensal(this.valorTotalSaidaMensal);
+                usuarioAtualiza.setQuantidadeTotalLancamentosEntradaMensal(this.quantidadeTotalLancamentosEntradaMensal);
+                usuarioAtualiza.setQuantidadeTotalLancamentosSaidaMensal(this.quantidadeTotalLancamentosSaidaMensal);
 
-               //NOVO LANCAMENTOMODEL SENTO INSTANCIADO PARA RECEBER VALORES JÁ TRATADOS------------
+                //NOVO LANCAMENTOMODEL SENTO INSTANCIADO PARA RECEBER VALORES JÁ TRATADOS------------
                 LancamentoEntradaModel lancamentoEntradaModelSalva = new LancamentoEntradaModel();
                 //ATRIBUINDO AS VARIAVEIS PARA OS ATRIBUTOS------------------------------------------
                 lancamentoEntradaModelSalva.setIdentificador(this.identificador);
@@ -157,6 +232,8 @@ public class ServicosService {
                 //CHAMANDO O METODO PARA ATUALIZAR
                 atualizaValorTotalEntradaMensalUsuario(usuarioAtualiza,lancamentoEntradaModelSalva);
 
+                this.mensagemReturn = "Sucesso ao adicionar novo lancamento entrada";
+                this.resultadoLancaEntrada = true;
 
             }else{
                 /*
@@ -198,27 +275,33 @@ public class ServicosService {
                 dadosSalva.put("quantidadeTotalLancamentosEntradaMensal" , userModelNovo.getQuantidadeTotalLancamentosEntradaMensal());
                 dadosSalva.put("quantidadeTotalLancamentosSaidaMensal" , userModelNovo.getQuantidadeTotalLancamentosSaidaMensal());
                 //ADICIONADO O LANÇAMENTO QUE ESTÁ SENDO FEITO NO FIREBASE
-                firestore.collection(NOME_COLLECTION_ACUMULADOS)
+                firestoreCollectionMesReferencia.collection(NOME_COLLECTION_ACUMULADOS)
                         .document(userModelNovo.getEmailUser())
+                        .collection(nomeCollectionAcumuladoUsuario)
+                        .document(this.nomeCollectionMesReferencia)
                         .set(dadosSalva);
-
+                this.mensagemReturn = "Sucesso ao criar novo lancamento entrada";
+                this.resultadoLancaEntrada = true;
             }
             //QUANDO ACABAR E CASO NÃO RETORNE ERRO SERÁ ATRIBUIDO VERDADEIRO PARA A VARIAVEIS DE RETORNO DO METODO
-            this.resultadoLancaEntrada = true;
+
         }
 
-        if(this.resultadoLancaEntrada){
-           this.mensagemReturn = "SUCCESS";
-        }else{
-            this.mensagemReturn = "RETORNOU FALSO ERROR";
-        }
+
 
         return this.mensagemReturn ;
     }
 
-//INICIO METODO
+    //INICIO METODO
     private void atualizaValorTotalEntradaMensalUsuario(UserModel usuarioAtualiza,
                                                         LancamentoEntradaModel lancamentoEntradaModelSalva) throws ExecutionException, InterruptedException {
+
+
+        String nomeUsuario = usuarioAtualiza.getNomeUser();
+        String nomeMaiusculo = nomeUsuario.toUpperCase();
+        String nomeCollectionAcumuladoUsuario = "ACUMULADO_" +nomeMaiusculo;
+
+
 
 
         //-------------INICIO DATA FORMATADA PARA CRIAÇÃO-------------------------//
@@ -234,7 +317,7 @@ public class ServicosService {
 
 
         Firestore firestore = FirestoreClient.getFirestore();
-        firestore.collection(NOME_COLLECTION_ACUMULADOS).document(lancamentoEntradaModelSalva.getEmailUserLancandoEntrada()).collection(NOME_COLLECTION_LANCAMENTO_ENTRADA_DIARIA_USUARIO);
+        //firestore.collection(NOME_COLLECTION_ACUMULADOS).document(lancamentoEntradaModelSalva.getEmailUserLancandoEntrada()).collection(NOME_COLLECTION_LANCAMENTO_ENTRADA_DIARIA_USUARIO);
 
         //-------------FIM INSTANCIANDO FIRESTORE-------------------------//
 
@@ -270,12 +353,23 @@ public class ServicosService {
         LancamentoEntrada.put("modifieldLancamentoEntrada" , lancamentoSalvo.getModifieldLancamentoEntrada());
 
 
-
         firestore.collection(NOME_COLLECTION_ACUMULADOS)
                 .document(lancamentoEntradaModelSalva.getEmailUserLancandoEntrada())
+                .collection(nomeCollectionAcumuladoUsuario)
+                .document(this.nomeCollectionMesReferencia)
                 .collection(NOME_COLLECTION_LANCAMENTO_ENTRADA_DIARIA_USUARIO)
                 .document(lancamentoSalvo.getIdentificador())
                 .set(LancamentoEntrada);
+
+
+/*
+        firestore.collection(NOME_COLLECTION_ACUMULADOS)
+                .document(usuarioAtualiza.getEmailUser())
+                .collection(NOME_COLLECTION_ACUMULADOS_ENTRADA_USUARIO)
+                .document(this.nomeCollectionMesReferencia)
+                .collection(NOME_COLLECTION_LANCAMENTO_ENTRADA_DIARIA_USUARIO)
+                .document(lancamentoSalvo.getIdentificador())
+                .set(LancamentoEntrada);*/
         //-------------FIM PREPARACAO DAS VARIAVEIRS DO LANCAMENTO PARA ATUALIZACAO NO FIRESTORE-------------------------//
 
 
@@ -294,20 +388,28 @@ public class ServicosService {
 
         firestore.collection(NOME_COLLECTION_ACUMULADOS)
                 .document(usuarioAtualiza.getEmailUser())
+                .collection(nomeCollectionAcumuladoUsuario)
+                .document(this.nomeCollectionMesReferencia)
                 .set(dadosSalva);
 
-    //-------------FIM PREPARACAO DAS VARIAVEIRS DO USUARIO PARA ATUALIZACAO NO FIRESTORE-------------------------//
+        //-------------FIM PREPARACAO DAS VARIAVEIRS DO USUARIO PARA ATUALIZACAO NO FIRESTORE-------------------------//
 
     }
 //FIM METODO
 
-//INICIO METODO
+    //INICIO METODO
     private void adicionaLancamentoUsuario(String emailUserLancandoEntrada,
                                            String nomeUserLancandoEntrada,
                                            String nomeLancamentoEntrada,
                                            String dataLancamentoEntrada,
                                            String valorLancamentoEntrada,
                                            String detalhesLancamentoEntrada) {
+
+        String nomeUsuario = nomeUserLancandoEntrada;
+        String nomeMaiusculo = nomeUsuario.toUpperCase();
+        String nomeCollectionAcumuladoUsuario = "ACUMULADO_" +nomeMaiusculo;
+
+
         //INSTANCIANDO UMA NOVA REFERENCIA AO FIREBASE CONECTADO
         Firestore firestore = FirestoreClient.getFirestore();
 
@@ -351,9 +453,11 @@ public class ServicosService {
         LancamentoEntrada.put("modifieldLancamentoEntrada" , lancamentoEntradaModelSalva.getModifieldLancamentoEntrada());
 
 
-            //CRIANDO O 1º NÓ DE LANCAMENTO DE ENTRADA DO USUARIO E ADICIONADO O OBJETO DO TIPO MAP AO FIRESTORE DO FIREBASE
-                firestore.collection(NOME_COLLECTION_ACUMULADOS)
+        //CRIANDO O 1º NÓ DE LANCAMENTO DE ENTRADA DO USUARIO E ADICIONADO O OBJETO DO TIPO MAP AO FIRESTORE DO FIREBASE
+        firestore.collection(NOME_COLLECTION_ACUMULADOS)
                 .document(lancamentoEntradaModelSalva.getEmailUserLancandoEntrada())
+                .collection(nomeCollectionAcumuladoUsuario)
+                .document(this.nomeCollectionMesReferencia)
                 .collection(NOME_COLLECTION_LANCAMENTO_ENTRADA_DIARIA_USUARIO)
                 .document("1")
                 .set(lancamentoEntradaModelSalva);
@@ -584,19 +688,19 @@ public class ServicosService {
     public List<LancamentoEntradaModel> getLancarEntrada() throws ExecutionException, InterruptedException {
         List<LancamentoEntradaModel> resultado = new ArrayList<>();
 
-            Firestore firestore = FirestoreClient.getFirestore();
-            CollectionReference collectionReference = firestore.collection(NOME_COLLECTION_ACUMULADOS);
+        Firestore firestore = FirestoreClient.getFirestore();
+        CollectionReference collectionReference = firestore.collection(NOME_COLLECTION_ACUMULADOS);
 
-            ApiFuture<QuerySnapshot> query = collectionReference.get();
-            List<QueryDocumentSnapshot> documentSnapshots = query.get().getDocuments();
-            for(QueryDocumentSnapshot doc : documentSnapshots){
-                LancamentoEntradaModel entradaSalda = doc.toObject(LancamentoEntradaModel.class);
-                resultado.add(entradaSalda);
-
-
+        ApiFuture<QuerySnapshot> query = collectionReference.get();
+        List<QueryDocumentSnapshot> documentSnapshots = query.get().getDocuments();
+        for(QueryDocumentSnapshot doc : documentSnapshots){
+            LancamentoEntradaModel entradaSalda = doc.toObject(LancamentoEntradaModel.class);
+            resultado.add(entradaSalda);
 
 
-    }
+
+
+        }
         return resultado;
     /*public LancamentoSaidaModel getLancarSaida(String collection) throws ExecutionException, InterruptedException {
 
@@ -621,5 +725,5 @@ public class ServicosService {
     public String deletarEntradaLancada(String collection) {
         return "";
     }*/
-}
+    }
 }
