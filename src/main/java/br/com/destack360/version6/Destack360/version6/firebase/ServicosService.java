@@ -1,5 +1,6 @@
 package br.com.destack360.version6.Destack360.version6.firebase;
 
+import br.com.destack360.version6.Destack360.version6.model.ClienteModel;
 import br.com.destack360.version6.Destack360.version6.model.LancamentoEntradaModel;
 import br.com.destack360.version6.Destack360.version6.model.LancamentoSaidaModel;
 import br.com.destack360.version6.Destack360.version6.model.UserModel;
@@ -22,6 +23,7 @@ public class ServicosService {
     private String NOME_COLLECTION_ACUMULADOS_ENTRADA_USUARIO = "ACUMULADOS_";
     private static final String NOME_COLLECTION_LANCAMENTO_ENTRADA_DIARIA_USUARIO = "ACUMULADOS_ENTRADA_DIARIA";
     private static final String NOME_COLLECTION_LANCAMENTO_SAIDA_DIARIA_USUARIO = "ACUMULADOS_SAIDA_DIARIA";
+    private static final String NOME_COLLECTION_CLIENTE = "CLIENTES";
 
 
 
@@ -46,6 +48,16 @@ public class ServicosService {
     public String dataLancamentoSaida;
     public String valorLancamentoSaida;
     public String detalhesLancamentoSaida;
+
+    //Variaveis Cliente Cadatrar/Cadastrado
+    public String identificadorCliente;
+    public String razaoSocial;
+    public String CNPJ;
+    public String Usuario;
+    public String emailCliente;
+    public String telefone;
+    public String celular;
+    public String OBS;
 
 
 
@@ -438,7 +450,7 @@ public class ServicosService {
         lancamentoEntradaModelSalva.setNomeLancamentoEntrada(nomeLancamentoEntrada);
         lancamentoEntradaModelSalva.setDataLancamentoEntrada(dataFormatadaLancamentoEntrada);
         lancamentoEntradaModelSalva.setValorLancamentoEntrada(valorLancamentoEntrada);
-        lancamentoEntradaModelSalva.setDataLancamentoEntrada(detalhesLancamentoEntrada);
+        lancamentoEntradaModelSalva.setDetalhesLancamentoEntrada(detalhesLancamentoEntrada);
         lancamentoEntradaModelSalva.setCreatedLancamentoEntrada(dataCreated);
         lancamentoEntradaModelSalva.setModifieldLancamentoEntrada("Nenhuma Modificação");
 
@@ -853,7 +865,7 @@ public class ServicosService {
         lancamentoEntradaModelSalva.setNomeLancamentoEntrada(nomeLancamentoEntrada);
         lancamentoEntradaModelSalva.setDataLancamentoEntrada(dataFormatadaLancamentoEntrada);
         lancamentoEntradaModelSalva.setValorLancamentoEntrada(valorLancamentoEntrada);
-        lancamentoEntradaModelSalva.setDataLancamentoEntrada(detalhesLancamentoEntrada);
+        lancamentoEntradaModelSalva.setDetalhesLancamentoEntrada(detalhesLancamentoEntrada);
         lancamentoEntradaModelSalva.setCreatedLancamentoEntrada(dataCreated);
         lancamentoEntradaModelSalva.setModifieldLancamentoEntrada("Nenhuma Modificação");
 
@@ -934,5 +946,256 @@ public class ServicosService {
     public String deletarEntradaLancada(String collection) {
         return "";
     }*/
+    }
+
+    public String cadastrarCliente(ClienteModel clienteModel) throws ExecutionException, InterruptedException {
+
+        Date data = new Date();
+        SimpleDateFormat dataFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
+        String dataCreated = dataFormat.format(data);
+
+
+
+
+        this.razaoSocial = clienteModel.getRazaoSocial();
+        this.CNPJ = clienteModel.getCnpj();
+        this.Usuario = clienteModel.getUsuariocliente();
+        this.emailCliente = clienteModel.getEmailCliente();
+        this.telefone = clienteModel.getTelefone();
+        this.celular = clienteModel.getCelular();
+       // this.OBS = clienteModel.getObs();
+
+        if(this.CNPJ != null){
+            Firestore firestoreCliente = FirestoreClient.getFirestore();
+            DocumentReference documentReferenceCliente;
+            documentReferenceCliente = firestoreCliente.collection(NOME_COLLECTION_CLIENTE)
+                        .document(this.CNPJ);
+
+            ApiFuture<DocumentSnapshot> documentSnapshotApiFutureCliente = documentReferenceCliente.get();
+            DocumentSnapshot documentSnapshotCliente = documentSnapshotApiFutureCliente.get();
+
+            if(documentSnapshotCliente.exists()){
+                this.mensagemReturn = "Cliente já tem cadastro";
+
+            }else{
+
+                ClienteModel clienteModelSalva = new ClienteModel();
+                //ATRIBUINDO AS VARIAVEIS PARA OS ATRIBUTOS
+                clienteModelSalva.setIdentificador(this.CNPJ);
+                clienteModelSalva.setRazaoSocial(this.razaoSocial);
+                clienteModelSalva.setEmailCliente(this.emailCliente);
+                clienteModelSalva.setCnpj(this.CNPJ);
+                clienteModelSalva.setUsuariocliente(this.Usuario);
+                clienteModelSalva.setTelefone(this.telefone);
+                clienteModelSalva.setCelular(this.celular);
+                clienteModelSalva.setObs("Cliente Criado");
+                clienteModelSalva.setCreated(dataCreated);
+                clienteModelSalva.setModified("Cliente sem modificação");
+
+                //INSTANCIANDO UM NOVO MAP PARA SER ADICIONADO AO FIREBASE - FIRESTORE
+                Map<String , Object> clienteSalva = new HashMap<>();
+                //PREPARANDO AS VARIAVEIS PARA SEREM ADICIONADO AO FIREBASE
+                clienteSalva.put("identificador" , clienteModelSalva.getCnpj());
+                clienteSalva.put("razaoSocial" , clienteModelSalva.getRazaoSocial());
+                clienteSalva.put("CNPJ" , clienteModelSalva.getCnpj());
+                clienteSalva.put("Usuario" , clienteModelSalva.getUsuariocliente());
+                clienteSalva.put("emailCliente" , clienteModelSalva.getEmailCliente());
+                clienteSalva.put("telefone" , clienteModelSalva.getTelefone());
+                clienteSalva.put("celular" , clienteModelSalva.getCelular());
+                clienteSalva.put("OBS" , clienteModelSalva.getObs());
+                clienteSalva.put("created" , clienteModelSalva.getCreated());
+                clienteSalva.put("modified" , clienteModelSalva.getModified());
+                //ADICIONADO O LANÇAMENTO QUE ESTÁ SENDO FEITO NO FIREBASE
+
+                Firestore firestoreClienteSalva = FirestoreClient.getFirestore();
+                firestoreClienteSalva.collection(NOME_COLLECTION_CLIENTE)
+                        .document(clienteModelSalva.getIdentificador())
+                        .set(clienteModelSalva);
+                this.mensagemReturn = "Cliente cadastrado com sucesso";
+            }
+
+        }else{
+            this.mensagemReturn = "CNPJ DEU NULO";
+        }
+
+
+
+       /* this.mensagemReturn = "Razao social: " + this.razaoSocial
+                +"CNPJ: " + this.CNPJ
+                +"Usuario: " + this.Usuario
+                + "email : " + this.emailCliente
+                +" telefone: " + this.telefone
+                +" celular: " + this.celular
+                +" OBS: " + this.OBS;*/
+        return this.mensagemReturn;
+    }
+
+    public String editarCliente(ClienteModel clienteModel) throws ExecutionException, InterruptedException {
+
+
+        Date data = new Date();
+        SimpleDateFormat dataFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
+        String dataModified = dataFormat.format(data);
+
+        ClienteModel clienteModelRecuperadoFirebase = new ClienteModel();
+
+        Firestore firestoreCliente = FirestoreClient.getFirestore();
+        DocumentReference documentReferenceCliente;
+        documentReferenceCliente = firestoreCliente.collection(NOME_COLLECTION_CLIENTE)
+                .document(clienteModel.getCnpj());
+
+        ApiFuture<DocumentSnapshot> usuarioLancaEntradaMesReferencia = documentReferenceCliente.get();
+        DocumentSnapshot documentSnapshotUsuarioMesReferencia = usuarioLancaEntradaMesReferencia.get();
+
+
+
+        //RECUPERANDO DADOS DO USUARIO PARA AS ATUALIZAÇÕES REFERENTE AO LANÇAMENTO EFETUADO
+        ClienteModel clienteModelFirebase = documentSnapshotUsuarioMesReferencia.toObject(ClienteModel.class);
+
+
+        clienteModelRecuperadoFirebase.setEmailCliente(clienteModelFirebase.getEmailCliente());
+        clienteModelRecuperadoFirebase.setCnpj(clienteModelFirebase.getCnpj());
+        clienteModelRecuperadoFirebase.setUsuariocliente(clienteModelFirebase.getUsuariocliente());
+        clienteModelRecuperadoFirebase.setCelular(clienteModelFirebase.getCelular());
+        clienteModelRecuperadoFirebase.setTelefone(clienteModelFirebase.getTelefone());
+        clienteModelRecuperadoFirebase.setRazaoSocial(clienteModelFirebase.getRazaoSocial());
+        clienteModelRecuperadoFirebase.setObs(clienteModelFirebase.getObs());
+        clienteModelRecuperadoFirebase.setIdentificador(clienteModelFirebase.getIdentificador());
+        clienteModelRecuperadoFirebase.setCreated(clienteModelFirebase.getCreated());
+        clienteModelRecuperadoFirebase.setModified(dataModified);
+
+        adicionarClienteAlterado(clienteModelFirebase, dataModified);
+
+
+
+        this.identificadorCliente = clienteModel.getIdentificador();
+        this.razaoSocial = clienteModel.getRazaoSocial();
+        this.CNPJ = clienteModel.getCnpj();
+        this.Usuario = clienteModel.getUsuariocliente();
+        this.emailCliente = clienteModel.getEmailCliente();
+        this.telefone = clienteModel.getTelefone();
+        this.celular = clienteModel.getCelular();
+        this.OBS = clienteModel.getObs();
+
+
+        ClienteModel clienteModelAtualizado = new ClienteModel();
+
+        clienteModelAtualizado.setEmailCliente(this.emailCliente);
+        clienteModelAtualizado.setCnpj(this.CNPJ);
+        clienteModelAtualizado.setUsuariocliente(this.Usuario);
+        clienteModelAtualizado.setCelular(this.celular);
+        clienteModelAtualizado.setTelefone(this.telefone);
+        clienteModelAtualizado.setRazaoSocial(this.razaoSocial);
+        clienteModelAtualizado.setObs("Cliente editado no dia: " + dataModified);
+        clienteModelAtualizado.setIdentificador(clienteModelFirebase.getIdentificador());
+        clienteModelAtualizado.setCreated(clienteModelFirebase.getCreated());
+        clienteModelAtualizado.setModified(dataModified);
+
+        documentReferenceCliente.set(clienteModelAtualizado);
+
+this.mensagemReturn = "Cliente alterado";
+
+/*
+        if(this.CNPJ != null){
+            Firestore firestoreCliente = FirestoreClient.getFirestore();
+            DocumentReference documentReferenceCliente;
+            documentReferenceCliente = firestoreCliente.collection(NOME_COLLECTION_CLIENTE)
+                        .document(this.CNPJ);
+
+            ApiFuture<DocumentSnapshot> usuarioLancaEntradaMesReferencia = documentReferenceCliente.get();
+            DocumentSnapshot documentSnapshotUsuarioMesReferencia = usuarioLancaEntradaMesReferencia.get();
+
+
+
+            //RECUPERANDO DADOS DO USUARIO PARA AS ATUALIZAÇÕES REFERENTE AO LANÇAMENTO EFETUADO
+            ClienteModel clienteModelFirebase = documentSnapshotUsuarioMesReferencia.toObject(ClienteModel.class);
+
+
+
+
+          *//*  if(documentSnapshotCliente.exists()){
+                this.mensagemReturn = "Cliente já tem cadastro";
+
+            }
+            else{
+
+                ClienteModel clienteModelSalva = new ClienteModel();
+                //ATRIBUINDO AS VARIAVEIS PARA OS ATRIBUTOS
+                clienteModelSalva.setIdentificador(this.CNPJ);
+                clienteModelSalva.setRazaoSocial(this.razaoSocial);
+                clienteModelSalva.setEmailCliente(this.emailCliente);
+                clienteModelSalva.setCnpj(this.CNPJ);
+                clienteModelSalva.setUsuariocliente(this.Usuario);
+                clienteModelSalva.setTelefone(this.telefone);
+                clienteModelSalva.setCelular(this.celular);
+                clienteModelSalva.setObs("Cliente Criado");
+                clienteModelSalva.setCreated(dataCreated);
+                clienteModelSalva.setModified("Cliente sem modificação");
+
+                //INSTANCIANDO UM NOVO MAP PARA SER ADICIONADO AO FIREBASE - FIRESTORE
+                Map<String , Object> clienteSalva = new HashMap<>();
+                //PREPARANDO AS VARIAVEIS PARA SEREM ADICIONADO AO FIREBASE
+                clienteSalva.put("identificador" , clienteModelSalva.getIdentificador());
+                clienteSalva.put("razaoSocial" , clienteModelSalva.getRazaoSocial());
+                clienteSalva.put("CNPJ" , clienteModelSalva.getCnpj());
+                clienteSalva.put("Usuario" , clienteModelSalva.getUsuariocliente());
+                clienteSalva.put("emailCliente" , clienteModelSalva.getEmailCliente());
+                clienteSalva.put("telefone" , clienteModelSalva.getTelefone());
+                clienteSalva.put("celular" , clienteModelSalva.getCelular());
+                clienteSalva.put("OBS" , clienteModelSalva.getObs());
+                clienteSalva.put("created" , clienteModelSalva.getCreated());
+                clienteSalva.put("modified" , clienteModelSalva.getModified());
+                //ADICIONADO O LANÇAMENTO QUE ESTÁ SENDO FEITO NO FIREBASE
+
+                Firestore firestoreClienteSalva = FirestoreClient.getFirestore();
+                firestoreClienteSalva.collection(NOME_COLLECTION_CLIENTE)
+                        .document(clienteModelSalva.getIdentificador())
+                        .set(clienteSalva);
+                this.mensagemReturn = "Cliente cadastrado com sucesso";
+            }*//*
+
+        }else{
+            this.mensagemReturn = "CNPJ DEU NULO";
+        }
+
+
+
+       *//* this.mensagemReturn = "Razao social: " + this.razaoSocial
+                +"CNPJ: " + this.CNPJ
+                +"Usuario: " + this.Usuario
+                + "email : " + this.emailCliente
+                +" telefone: " + this.telefone
+                +" celular: " + this.celular
+                +" OBS: " + this.OBS;*/
+        return this.mensagemReturn;
+    }
+
+    private void adicionarClienteAlterado(ClienteModel clienteModelRecuperadoFirebase, String dataModificacao) {
+
+
+        Map<String, Object> clienteEditado = new HashMap<>();
+        clienteEditado.put("identificador" , clienteModelRecuperadoFirebase.getIdentificador());
+        clienteEditado.put("razaoSocial" , clienteModelRecuperadoFirebase.getRazaoSocial());
+        clienteEditado.put("cnpj" , clienteModelRecuperadoFirebase.getCnpj());
+        clienteEditado.put("usuariocliente" , clienteModelRecuperadoFirebase.getUsuariocliente());
+        clienteEditado.put("emailCliente" , clienteModelRecuperadoFirebase.getEmailCliente());
+        clienteEditado.put("telefone" , clienteModelRecuperadoFirebase.getTelefone());
+        clienteEditado.put("celular" , clienteModelRecuperadoFirebase.getCelular());
+        clienteEditado.put("obs" , clienteModelRecuperadoFirebase.getObs());
+        clienteEditado.put("created" , clienteModelRecuperadoFirebase.getCreated());
+        clienteEditado.put("modified" , dataModificacao);
+
+
+        Firestore firestoreClienteEditado = FirestoreClient.getFirestore();
+
+        firestoreClienteEditado.collection(NOME_COLLECTION_CLIENTE)
+                .document(clienteModelRecuperadoFirebase.getIdentificador())
+                .collection("MODIFICAÇOES_CLIENTE")
+                .document(dataModificacao)
+                .set(clienteEditado);
+        this.mensagemReturn = "Cliente antigo salvo com sucesso";
+
     }
 }

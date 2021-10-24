@@ -1,6 +1,7 @@
 package br.com.destack360.version6.Destack360.version6.firebase;
 
 import br.com.destack360.version6.Destack360.version6.commons.GenericServiceAPI;
+import br.com.destack360.version6.Destack360.version6.model.ClienteModel;
 import br.com.destack360.version6.Destack360.version6.model.LancamentoEntradaModel;
 import br.com.destack360.version6.Destack360.version6.model.LancamentoSaidaModel;
 import br.com.destack360.version6.Destack360.version6.modelDTO.LancamentoEntradaModelDTO;
@@ -131,7 +132,18 @@ public class ServicosControllerLancamentos {
 
     @GetMapping("/teste")
     public ResponseEntity<String> testGetEndpoint(){
-        return ResponseEntity.ok("<h1>Teste get Endpoint is Working</h1>");
+        return ResponseEntity.ok("<h1>Teste get Endapoint is Working</h1>");
+    }
+
+
+    //CLIENTES
+    @PostMapping("/cadastrarCliente")
+    public String cadastrarCliente(@RequestBody ClienteModel clienteModel) throws ExecutionException, InterruptedException {
+        return servicosService.cadastrarCliente(clienteModel);
+    }
+    @PostMapping("/editarCliente")
+    public String editarCliente(@RequestBody ClienteModel clienteModel) throws ExecutionException, InterruptedException {
+        return servicosService.editarCliente(clienteModel);
     }
 
 }
