@@ -1,9 +1,6 @@
 package br.com.destack360.version6.Destack360.version6.firebase;
 
-import br.com.destack360.version6.Destack360.version6.model.ClienteModel;
-import br.com.destack360.version6.Destack360.version6.model.LancamentoEntradaModel;
-import br.com.destack360.version6.Destack360.version6.model.LancamentoSaidaModel;
-import br.com.destack360.version6.Destack360.version6.model.UserModel;
+import br.com.destack360.version6.Destack360.version6.model.*;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
@@ -24,8 +21,14 @@ public class ServicosService {
     private static final String NOME_COLLECTION_LANCAMENTO_ENTRADA_DIARIA_USUARIO = "ACUMULADOS_ENTRADA_DIARIA";
     private static final String NOME_COLLECTION_LANCAMENTO_SAIDA_DIARIA_USUARIO = "ACUMULADOS_SAIDA_DIARIA";
     private static final String NOME_COLLECTION_CLIENTE = "CLIENTES";
+    private static final String NOME_COLLECTION_CONTAS = "CONTAS";
+    private static final String NOME_COLLECTION_CONTAS_CONTAS_ENTRADA = "CONTAS_ENTRADA";
 
 
+    //Classes
+    public ClienteModel clienteJason = new ClienteModel();
+    public ContaSaidaModel contaSaidaModelJason = new ContaSaidaModel();
+    public ContaEntradaModel contaEntradaModelJason = new ContaEntradaModel();
 
 
     //Variaveis Lancamento entrada:
@@ -70,6 +73,22 @@ public class ServicosService {
     public double valorTotalSaidaMensal;
     public int quantidadeTotalLancamentosEntradaMensal;
     public int quantidadeTotalLancamentosSaidaMensal;
+
+
+    //Variaveis Conta Entrada
+    public String idendificadorContaEntrada;
+    public String codigoCEntrada;
+    public String codigoDEntrada;
+    public String descricao;
+
+    //Variaveis Conta Saida
+
+    private String idendificadorContaSaida;
+    private String codigoCSaida;
+    private String codigoDSaida;
+    private String fornecedor;
+    private String servico;
+
 
     //Variaveis Retorno:
     public boolean resultadoLancaEntrada = false;
@@ -917,10 +936,6 @@ public class ServicosService {
         for(QueryDocumentSnapshot doc : documentSnapshots){
             LancamentoEntradaModel entradaSalda = doc.toObject(LancamentoEntradaModel.class);
             resultado.add(entradaSalda);
-
-
-
-
         }
         return resultado;
     /*public LancamentoSaidaModel getLancarSaida(String collection) throws ExecutionException, InterruptedException {
@@ -948,7 +963,7 @@ public class ServicosService {
     }*/
     }
 
-    public String cadastrarCliente(ClienteModel clienteModel) throws ExecutionException, InterruptedException {
+    public ClienteModel cadastrarCliente(ClienteModel clienteModel) throws ExecutionException, InterruptedException {
 
         Date data = new Date();
         SimpleDateFormat dataFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
@@ -1012,7 +1027,7 @@ public class ServicosService {
                 firestoreClienteSalva.collection(NOME_COLLECTION_CLIENTE)
                         .document(clienteModelSalva.getIdentificador())
                         .set(clienteModelSalva);
-                this.mensagemReturn = "Cliente cadastrado com sucesso";
+                this.clienteJason = clienteModelSalva;
             }
 
         }else{
@@ -1028,7 +1043,7 @@ public class ServicosService {
                 +" telefone: " + this.telefone
                 +" celular: " + this.celular
                 +" OBS: " + this.OBS;*/
-        return this.mensagemReturn;
+        return this.clienteJason;
     }
 
     public String editarCliente(ClienteModel clienteModel) throws ExecutionException, InterruptedException {
@@ -1197,5 +1212,99 @@ this.mensagemReturn = "Cliente alterado";
                 .set(clienteEditado);
         this.mensagemReturn = "Cliente antigo salvo com sucesso";
 
+    }
+
+    public List<ClienteModel> getListaClientesCadastrados() throws ExecutionException, InterruptedException {
+        List<ClienteModel> resultadoClientesCadastrados = new ArrayList<>();
+
+        Firestore firestoreClientesCadastrados = FirestoreClient.getFirestore();
+        CollectionReference collectionReferenceClientesCadastrados = firestoreClientesCadastrados.collection(NOME_COLLECTION_CLIENTE);
+
+        ApiFuture<QuerySnapshot> query = collectionReferenceClientesCadastrados.get();
+        List<QueryDocumentSnapshot> documentSnapshots = query.get().getDocuments();
+        for(QueryDocumentSnapshot doc : documentSnapshots){
+            ClienteModel clienteCadastrado = doc.toObject(ClienteModel.class);
+            resultadoClientesCadastrados.add(clienteCadastrado);
+        }
+        return resultadoClientesCadastrados;
+
+    }
+
+    public ContaEntradaModel cadastrarContaEntrada(ContaEntradaModel contaEntradaModel) throws ExecutionException, InterruptedException {
+
+        Date data = new Date();
+        SimpleDateFormat dataFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
+        String dataCreated = dataFormat.format(data);
+
+         //this.idendificadorContaEntrada = contaEntradaModel.getIdendificador();
+         this.codigoCEntrada = contaEntradaModel.getCodigoC();
+         this.codigoDEntrada = contaEntradaModel.getCodigoD();
+         this.descricao = contaEntradaModel.getDescricao();
+
+
+
+        if(this.codigoCEntrada != null && this.codigoDEntrada != null && this.descricao != null){
+            Firestore firestoreContaEntra = FirestoreClient.getFirestore();
+            DocumentReference documentReferenceCliente;
+            documentReferenceCliente = firestoreContaEntra.collection(NOME_COLLECTION_CONTAS_CONTAS_ENTRADA)
+                    .document(this.codigoCEntrada);
+
+            ApiFuture<DocumentSnapshot> documentSnapshotApiFutureCliente = documentReferenceCliente.get();
+            DocumentSnapshot documentSnapshotCliente = documentSnapshotApiFutureCliente.get();
+
+            if(documentSnapshotCliente.exists()){
+                this.mensagemReturn = "Cliente já tem cadastro";
+
+            }else{
+
+                this.contaEntradaModelJason = new ContaEntradaModel();
+                this.contaEntradaModelJason.setCodigoC(this.codigoCEntrada);
+                this.contaEntradaModelJason.setCodigoD(this.codigoDEntrada);
+                this.contaEntradaModelJason.setDescricao(this.descricao);
+                this.contaEntradaModelJason.setIdendificador(this.codigoCEntrada);
+                documentReferenceCliente.set(this.contaEntradaModelJason);
+
+
+            }
+
+        }else{
+            this.mensagemReturn = "CNPJ DEU NULO";
+        }
+
+
+
+       /* this.mensagemReturn = "Razao social: " + this.razaoSocial
+                +"CNPJ: " + this.CNPJ
+                +"Usuario: " + this.Usuario
+                + "email : " + this.emailCliente
+                +" telefone: " + this.telefone
+                +" celular: " + this.celular
+                +" OBS: " + this.OBS;*/
+        return this.contaEntradaModelJason;
+
+
+    }
+
+    public ContaSaidaModel cadastrarContaSaida(ContaSaidaModel contaSaidaModel) {
+
+
+        return this.contaSaidaModelJason;
+    }
+
+    public List<ContaEntradaModel> getListaContasEntradaCadastradas() throws ExecutionException, InterruptedException {
+
+        List<ContaEntradaModel> resultadoListaContasEntradaCadastradas = new ArrayList<>();
+
+        Firestore firestore = FirestoreClient.getFirestore();
+        CollectionReference collectionReference = firestore.collection(NOME_COLLECTION_CONTAS_CONTAS_ENTRADA);
+
+        ApiFuture<QuerySnapshot> query = collectionReference.get();
+        List<QueryDocumentSnapshot> documentSnapshots = query.get().getDocuments();
+        for(QueryDocumentSnapshot doc : documentSnapshots){
+            ContaEntradaModel contaEntradaCadastradaBanco = doc.toObject(ContaEntradaModel.class);
+            resultadoListaContasEntradaCadastradas.add(contaEntradaCadastradaBanco);
+        }
+        return resultadoListaContasEntradaCadastradas;
     }
 }

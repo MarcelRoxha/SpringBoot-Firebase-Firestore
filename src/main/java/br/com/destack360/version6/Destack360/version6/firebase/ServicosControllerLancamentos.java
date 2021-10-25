@@ -1,9 +1,7 @@
 package br.com.destack360.version6.Destack360.version6.firebase;
 
 import br.com.destack360.version6.Destack360.version6.commons.GenericServiceAPI;
-import br.com.destack360.version6.Destack360.version6.model.ClienteModel;
-import br.com.destack360.version6.Destack360.version6.model.LancamentoEntradaModel;
-import br.com.destack360.version6.Destack360.version6.model.LancamentoSaidaModel;
+import br.com.destack360.version6.Destack360.version6.model.*;
 import br.com.destack360.version6.Destack360.version6.modelDTO.LancamentoEntradaModelDTO;
 import br.com.destack360.version6.Destack360.version6.service.impl.LancamentoEntradaImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +21,8 @@ import java.util.concurrent.ExecutionException;
 
 
 @RestController
-@RequestMapping("/dashboard")
-@CrossOrigin("*")
+@RequestMapping("/")
+@CrossOrigin("http://localhost:4200/")
 public class ServicosControllerLancamentos {
 
 
@@ -98,37 +96,36 @@ public class ServicosControllerLancamentos {
         return servicosService.getLancarEntrada();
     }
 
-    //Lista saidas---------------------------
-  /*  @GetMapping("/listaSaidasLancadas")
-    public LancamentoSaidaModel listaSaidasLancadas(@RequestParam String collection) throws ExecutionException, InterruptedException {
-        return servicosService.getLancarSaida(collection);
+    @GetMapping("/recuperarClientes")
+    public List<ClienteModel> listaClientesCadastrados() throws ExecutionException, InterruptedException {
+        return servicosService.getListaClientesCadastrados();
+    }
+
+    //Cadastrar Conta de Saida
+    @PostMapping("/cadastrarContaEntrada")
+    public ContaEntradaModel contaEntradaModel(@RequestBody ContaEntradaModel contaEntradaModel) throws ExecutionException, InterruptedException {
+        return servicosService.cadastrarContaEntrada(contaEntradaModel);
+    }
+    @GetMapping("/recuperarContasEntrada")
+    public List<ContaEntradaModel> listaContasEntradaCadastradas() throws ExecutionException, InterruptedException {
+        return servicosService.getListaContasEntradaCadastradas();
+    }
+
+    //Cadastrar Conta de entrada-----------------------------
+
+    @PutMapping("/cadastrarContaSaida")
+    public ContaSaidaModel contaSaidaModel(@RequestBody ContaSaidaModel contaSaidaModel) {
+        return servicosService.cadastrarContaSaida(contaSaidaModel);
+    }
+
+    //Deletar lancamento entrada----------------------------
+
+  /*  @GetMapping("/deletarLanceEntrada")
+    public String deletarLanceEntrada(@RequestParam String collection) {
+        return servicosService.deletarEntradaLancada(collection);
     }*/
 
-
-    //--------------------LISTA LANÇAMENTOS FIM-------------------------------//
-
-
-
-                    //Inserir dados de lançamento no firebase
-
-
-
-
-                //Editar dados de lançamento do firebase
-
-
-
-
-                //Recuperar dados do Firebase
-
-
-
-
-            //Excluir dados de lançamento firebase
-
-    //Recuperar dados do Firebase
-
-
+    //--------------------LANÇAMENTO ENTRADA FIM-------------------------------//
 
     @GetMapping("/teste")
     public ResponseEntity<String> testGetEndpoint(){
@@ -138,12 +135,13 @@ public class ServicosControllerLancamentos {
 
     //CLIENTES
     @PostMapping("/cadastrarCliente")
-    public String cadastrarCliente(@RequestBody ClienteModel clienteModel) throws ExecutionException, InterruptedException {
+    public ClienteModel cadastrarCliente(@RequestBody ClienteModel clienteModel) throws ExecutionException, InterruptedException {
         return servicosService.cadastrarCliente(clienteModel);
     }
     @PostMapping("/editarCliente")
     public String editarCliente(@RequestBody ClienteModel clienteModel) throws ExecutionException, InterruptedException {
         return servicosService.editarCliente(clienteModel);
     }
+
 
 }
