@@ -12,6 +12,7 @@ public class UserModel {
     private String user_id;
     private String nomeUser;
     private String emailUser;
+    private String situacaoUsuario;
     private double valorTotalEntradaMensal;
     private double valorTotalSaidaMensal;
     private int quantidadeTotalLancamentosEntradaMensal;

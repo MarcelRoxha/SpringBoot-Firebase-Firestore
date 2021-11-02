@@ -18,4 +18,5 @@ public class ClienteModel {
     private String obs;
     private String created;
     private String modified;
+    private String status;
 }

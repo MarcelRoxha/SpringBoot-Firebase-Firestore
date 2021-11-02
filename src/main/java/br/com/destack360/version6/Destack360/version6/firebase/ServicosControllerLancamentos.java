@@ -1,16 +1,11 @@
 package br.com.destack360.version6.Destack360.version6.firebase;
 
-import br.com.destack360.version6.Destack360.version6.commons.GenericServiceAPI;
 import br.com.destack360.version6.Destack360.version6.model.*;
-import br.com.destack360.version6.Destack360.version6.modelDTO.LancamentoEntradaModelDTO;
-import br.com.destack360.version6.Destack360.version6.service.impl.LancamentoEntradaImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +17,7 @@ import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/")
-@CrossOrigin("http://localhost:4200/")
+@CrossOrigin("*")
 public class ServicosControllerLancamentos {
 
 
@@ -39,8 +34,13 @@ public class ServicosControllerLancamentos {
     //Salvar lancamento entrada-----------------------------
 
     @PostMapping("/lancarEntrada")
-    public String lancarEntrada(@RequestBody LancamentoEntradaModel lancamentoEntradaModel) throws ExecutionException, InterruptedException {
+    public LancamentoEntradaModel lancarEntrada(@RequestBody LancamentoEntradaModel lancamentoEntradaModel) throws ExecutionException, InterruptedException {
         return servicosService.lancarEntrada(lancamentoEntradaModel);
+    }
+
+    @PostMapping("/salvarSugestao")
+    public ContaEntradaLancamentosFuturosModel salvarSugestao(@RequestBody ContaEntradaLancamentosFuturosModel ContaEntradaLancamentosFuturosModel) throws ExecutionException, InterruptedException {
+        return servicosService.salvarLancamentosFuturos(ContaEntradaLancamentosFuturosModel);
     }
 
     //Editar lancamento entrada-----------------------------
@@ -50,25 +50,10 @@ public class ServicosControllerLancamentos {
         return servicosService.editarLancamentoEntrada(lancamentoEntradaModel);
     }
 
-    //Deletar lancamento entrada----------------------------
-
-  /*  @GetMapping("/deletarLanceEntrada")
-    public String deletarLanceEntrada(@RequestParam String collection) {
-        return servicosService.deletarEntradaLancada(collection);
-    }*/
-
-    //--------------------LANÇAMENTO ENTRADA FIM-------------------------------//
-
-
-
-
-    //--------------------LANÇAMENTO SAIDA INICIO-------------------------------//
-
-    //Salvar lancamento saida
 
     @PostMapping("/lancarSaida")
-    public String lancarSaida(@RequestBody LancamentoEntradaModel lancamentoEntradaModel) throws ExecutionException, InterruptedException {
-        return servicosService.lancarSaida(lancamentoEntradaModel);
+    public LancamentoSaidaModel lancarSaida(@RequestBody LancamentoSaidaModel lancamentoSaidaModel) throws ExecutionException, InterruptedException {
+        return servicosService.lancarSaida(lancamentoSaidaModel);
     }
 
     //Editar lancamento saida
@@ -106,15 +91,21 @@ public class ServicosControllerLancamentos {
     public ContaEntradaModel contaEntradaModel(@RequestBody ContaEntradaModel contaEntradaModel) throws ExecutionException, InterruptedException {
         return servicosService.cadastrarContaEntrada(contaEntradaModel);
     }
+
     @GetMapping("/recuperarContasEntrada")
     public List<ContaEntradaModel> listaContasEntradaCadastradas() throws ExecutionException, InterruptedException {
         return servicosService.getListaContasEntradaCadastradas();
     }
 
+    @GetMapping("/recuperarContasSaida")
+    public List<ContaSaidaModel> listaContasSaidaCadastradas() throws ExecutionException, InterruptedException {
+        return servicosService.getListaContasSaidasCadastradas();
+    }
+
     //Cadastrar Conta de entrada-----------------------------
 
-    @PutMapping("/cadastrarContaSaida")
-    public ContaSaidaModel contaSaidaModel(@RequestBody ContaSaidaModel contaSaidaModel) {
+    @PostMapping("/cadastrarContaSaida")
+    public ContaSaidaModel contaSaidaModel(@RequestBody ContaSaidaModel contaSaidaModel) throws ExecutionException, InterruptedException {
         return servicosService.cadastrarContaSaida(contaSaidaModel);
     }
 
@@ -142,6 +133,76 @@ public class ServicosControllerLancamentos {
     public String editarCliente(@RequestBody ClienteModel clienteModel) throws ExecutionException, InterruptedException {
         return servicosService.editarCliente(clienteModel);
     }
+
+
+
+    @PostMapping("/recuperarInformacoesCliente")
+    public ClienteModel informacoesUsuario(@RequestBody String idPassado) throws ExecutionException, InterruptedException {
+        return servicosService.recuperarInformacoesCliente(idPassado);
+    }
+
+
+    @PostMapping("/acumulado-janeiro")
+    public UserModel dadosJaneiroUsuario(@RequestBody UserModel userModel) throws ExecutionException, InterruptedException {
+        return servicosService.recuperarValoresUsuarioJaneiro(userModel);
+    }
+
+    @PostMapping("/acumulado-fevereiro")
+    public UserModel acumuladoFevereiro(@RequestBody UserModel userModel) throws ExecutionException, InterruptedException {
+        return servicosService.getAcumuladoReferenciaFevereiro(userModel);
+    }
+
+    @PostMapping("/acumulado-marco")
+    public UserModel acumuladoMarco(@RequestBody UserModel userModel) throws ExecutionException, InterruptedException {
+        return servicosService.getAcumuladoReferenciaMarco(userModel);
+    }
+
+    @PostMapping("/acumulado-abril")
+    public UserModel acumuladoAbril(@RequestBody UserModel userModel) throws ExecutionException, InterruptedException {
+        return servicosService.getAcumuladoReferenciaAbril(userModel);
+    }
+
+    @PostMapping("/acumulado-maio")
+    public UserModel acumuladoMaio(@RequestBody UserModel userModel) throws ExecutionException, InterruptedException {
+        return servicosService.getAcumuladoReferenciaMaio(userModel);
+    }
+
+    @PostMapping("/acumulado-junho")
+    public UserModel acumuladoJunho(@RequestBody UserModel userModel) throws ExecutionException, InterruptedException {
+        return servicosService.getAcumuladoReferenciaJunho(userModel);
+    }
+
+    @PostMapping("/acumulado-julho")
+    public UserModel acumuladoJulho(@RequestBody UserModel userModel) throws ExecutionException, InterruptedException {
+        return servicosService.getAcumuladoReferenciaJulho(userModel);
+    }
+
+    @PostMapping("/acumulado-agosto")
+    public UserModel acumuladoAgosto(@RequestBody UserModel userModel) throws ExecutionException, InterruptedException {
+        return servicosService.getAcumuladoReferenciaAgosto(userModel);
+    }
+
+    @PostMapping("/acumulado-setembro")
+    public UserModel acumuladoSetembro(@RequestBody UserModel userModel) throws ExecutionException, InterruptedException {
+        return servicosService.getAcumuladoReferenciaSetembro(userModel);
+    }
+
+    @PostMapping("/acumulado-outubro")
+    public UserModel acumuladoOutubro(@RequestBody UserModel userModel) throws ExecutionException, InterruptedException {
+        return servicosService.getAcumuladoReferenciaOutubro(userModel);
+    }
+
+    @PostMapping("/acumulado-novembro")
+    public UserModel acumuladoNovembro(@RequestBody UserModel userModel) throws ExecutionException, InterruptedException {
+        return servicosService.getAcumuladoReferenciaNovembro(userModel);
+    }
+
+    @PostMapping("/acumulado-dezembro")
+    public UserModel acumuladoDezembro(@RequestBody UserModel userModel) throws ExecutionException, InterruptedException {
+        return servicosService.getAcumuladoReferenciaDezembro(userModel);
+    }
+
+
 
 
 }
