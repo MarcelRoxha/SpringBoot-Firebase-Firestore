@@ -98,8 +98,8 @@ public class ServicosControllerLancamentos {
     }
 
     @GetMapping("/recuperarContasSaida")
-    public List<ContaSaidaModel> listaContasSaidaCadastradas() throws ExecutionException, InterruptedException {
-        return servicosService.getListaContasSaidasCadastradas();
+    public String listaContasSaidaCadastradas() throws ExecutionException, InterruptedException {
+        return "Teste Recuperado String";
     }
 
     //Cadastrar Conta de entrada-----------------------------
