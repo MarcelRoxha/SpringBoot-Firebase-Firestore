@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("api/destack")
 @CrossOrigin("*")
 public class ServicosControllerLancamentos {
 
