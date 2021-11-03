@@ -27,8 +27,8 @@ public class Application {
 				new FileInputStream(file.getAbsolutePath());
 
 		FirebaseOptions options = new FirebaseOptions.Builder()
-				.setCredentials(GoogleCredentials.fromStream(serviceAccount))
-				.setDatabaseUrl("https://destack360-default-rtdb.firebaseio.com")
+				.setCredentials(GoogleCredentials.getApplicationDefault())
+				.setDatabaseUrl("https://destack360-default-rtdb.firebaseio.com/")
 				.build();
 
 		FirebaseApp.initializeApp(options);
