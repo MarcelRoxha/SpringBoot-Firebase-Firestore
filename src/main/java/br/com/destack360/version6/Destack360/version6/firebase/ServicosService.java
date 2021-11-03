@@ -2196,9 +2196,9 @@ return this.userModelJason;
     //RECUPERAR VALORES DO MÊS DE SETEMBRO  FIM METODO
 
     //RECUPERAR LISTA DE CONTA DE SAIDA INICIO METODO
-    public List<ContaSaidaModel> getListaContasSaidasCadastradas() throws ExecutionException, InterruptedException {
+    public  String[] getListaContasSaidasCadastradas() throws ExecutionException, InterruptedException {
 
-        List<ContaSaidaModel> resultadoListaContasSaidasCadastradas = new ArrayList<>();
+        String[] resultadoListaContasSaidasCadastradas = {};
 
         Firestore firestore = FirestoreClient.getFirestore();
         CollectionReference collectionReference = firestore.collection(NOME_COLLECTION_CONTAS_CONTAS_SAIDA);
@@ -2207,7 +2207,7 @@ return this.userModelJason;
         List<QueryDocumentSnapshot> documentSnapshots = query.get().getDocuments();
         for(QueryDocumentSnapshot doc : documentSnapshots){
             ContaSaidaModel contaSaidaModelCadastradaBanco = doc.toObject(ContaSaidaModel.class);
-            resultadoListaContasSaidasCadastradas.add(contaSaidaModelCadastradaBanco);
+            resultadoListaContasSaidasCadastradas = new String[]{contaSaidaModelCadastradaBanco.getServico()};
         }
         return resultadoListaContasSaidasCadastradas;
     }
