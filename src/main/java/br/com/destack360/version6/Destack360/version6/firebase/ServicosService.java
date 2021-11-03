@@ -686,19 +686,6 @@ this.mensagemReturn = "Cliente alterado";
 
     //LISTA DE LANÇAMENTO DE ENTRADA INICIO METODO-------------------------------------------
     public List<LancamentoEntradaModel> getLancarEntrada() throws ExecutionException, InterruptedException, IOException {
-        ClassLoader classLoader = Application.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(classLoader.getResource("serviceAccountKey.json")).getFile());
-
-        FileInputStream serviceAccount =
-                new FileInputStream(file.getAbsolutePath());
-
-        FirebaseOptions options = new FirebaseOptions.Builder()
-                .setCredentials(GoogleCredentials.getApplicationDefault())
-                .setDatabaseUrl("https://destack360-default-rtdb.firebaseio.com/")
-                .build();
-
-        FirebaseApp.initializeApp(options);
-
 
         List<LancamentoEntradaModel> resultado = new ArrayList<>();
 
