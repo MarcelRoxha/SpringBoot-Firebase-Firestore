@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -77,7 +78,7 @@ public class ServicosControllerLancamentos {
 
     //Lista entradas---------------------------
     @GetMapping("/listaEntradasLancadas")
-    public List<LancamentoEntradaModel> listaEntradasLancadas() throws ExecutionException, InterruptedException {
+    public List<LancamentoEntradaModel> listaEntradasLancadas() throws ExecutionException, InterruptedException, IOException {
         return servicosService.getLancarEntrada();
     }
 

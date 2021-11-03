@@ -1,12 +1,16 @@
 package br.com.destack360.version6.Destack360.version6.firebase;
 
+import br.com.destack360.version6.Destack360.version6.Application;
 import br.com.destack360.version6.Destack360.version6.model.*;
 import com.google.api.core.ApiFuture;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.*;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.stereotype.Service;
 
-import java.io.Console;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -681,7 +685,21 @@ this.mensagemReturn = "Cliente alterado";
     //CADASTRAR CONTA DE ENTRADA FIM METODO---------------------------------------------------
 
     //LISTA DE LANÇAMENTO DE ENTRADA INICIO METODO-------------------------------------------
-    public List<LancamentoEntradaModel> getLancarEntrada() throws ExecutionException, InterruptedException {
+    public List<LancamentoEntradaModel> getLancarEntrada() throws ExecutionException, InterruptedException, IOException {
+        ClassLoader classLoader = Application.class.getClassLoader();
+        File file = new File(Objects.requireNonNull(classLoader.getResource("serviceAccountKey.json")).getFile());
+
+        FileInputStream serviceAccount =
+                new FileInputStream(file.getAbsolutePath());
+
+        FirebaseOptions options = new FirebaseOptions.Builder()
+                .setCredentials(GoogleCredentials.getApplicationDefault())
+                .setDatabaseUrl("https://destack360-default-rtdb.firebaseio.com/")
+                .build();
+
+        FirebaseApp.initializeApp(options);
+
+
         List<LancamentoEntradaModel> resultado = new ArrayList<>();
 
         Firestore firestore = FirestoreClient.getFirestore();
