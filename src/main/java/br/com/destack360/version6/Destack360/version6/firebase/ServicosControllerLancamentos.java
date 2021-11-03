@@ -100,7 +100,6 @@ public class ServicosControllerLancamentos {
     @GetMapping("/recuperarContasSaida")
     public String[] listaContasSaidaCadastradas() throws ExecutionException, InterruptedException {
 
-
         return servicosService.getListaContasSaidasCadastradas();
     }
 
