@@ -8,6 +8,7 @@
 		<version>2.5.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+
 	<groupId>br.com.destack360.version.6</groupId>
 	<artifactId>Destack360.version6</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -15,6 +16,7 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>11</java.version>
+		<start-class>com.bswen.test.shopper.Application</start-class>
 	</properties>
 	<dependencies>
 
